@@ -10,6 +10,10 @@ export interface Database {
   public: {
     Tables: {
       comments: {
+        Relationships: [
+          { foreignKeyName: 'comments_post_id_fkey'; columns: ['post_id']; isOneToOne: false; referencedRelation: 'posts'; referencedColumns: ['id'] },
+          { foreignKeyName: 'comments_user_id_fkey'; columns: ['user_id']; isOneToOne: false; referencedRelation: 'profiles'; referencedColumns: ['id'] }
+        ]
         Row: {
           created_at: string | null
           id: number
@@ -36,6 +40,10 @@ export interface Database {
         }
       }
       post_votes: {
+        Relationships: [
+          { foreignKeyName: 'post_votes_post_id_fkey'; columns: ['post_id']; isOneToOne: false; referencedRelation: 'posts'; referencedColumns: ['id'] },
+          { foreignKeyName: 'post_votes_user_id_fkey'; columns: ['user_id']; isOneToOne: false; referencedRelation: 'profiles'; referencedColumns: ['id'] }
+        ]
         Row: {
           created_at: string | null
           id: number
@@ -59,7 +67,12 @@ export interface Database {
         }
       }
       posts: {
+        Relationships: [
+          { foreignKeyName: 'posts_posted_by_fkey'; columns: ['posted_by']; isOneToOne: false; referencedRelation: 'profiles'; referencedColumns: ['id'] },
+          { foreignKeyName: 'posts_subreddit_fkey'; columns: ['subreddit']; isOneToOne: false; referencedRelation: 'subreddits'; referencedColumns: ['id'] }
+        ]
         Row: {
+          url: string | null
           created_at: string | null
           id: number
           image_url: string | null
@@ -69,6 +82,7 @@ export interface Database {
           title: string
         }
         Insert: {
+          url?: string | null
           created_at?: string | null
           id?: number
           image_url?: string | null
@@ -78,6 +92,7 @@ export interface Database {
           title: string
         }
         Update: {
+          url?: string | null
           created_at?: string | null
           id?: number
           image_url?: string | null
@@ -88,6 +103,7 @@ export interface Database {
         }
       }
       profiles: {
+        Relationships: []
         Row: {
           id: string
           updated_at: string | null
@@ -105,6 +121,7 @@ export interface Database {
         }
       }
       subreddits: {
+        Relationships: []
         Row: {
           created_at: string | null
           id: number

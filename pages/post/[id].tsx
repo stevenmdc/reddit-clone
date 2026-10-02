@@ -19,14 +19,18 @@ interface PostPageProps {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { id } = context.query
+  if (typeof id !== 'string' || !/^\d+$/.test(id)) return { notFound: true }
+  const postId = Number(id)
+  if (!Number.isSafeInteger(postId) || postId <= 0) return { notFound: true }
 
   let { data, error } = await supabase
     .from('posts')
     .select(POST_SELECT_QUERY)
-    .eq('id', id)
+    .eq('id', postId)
     .single()
 
-  if (error) console.error(error)
+  if (error?.code === 'PGRST116' || (!error && !data)) return { notFound: true }
+  if (error) throw new Error('Unable to load post')
 
   return {
     props: { data: data as PostType },
@@ -81,7 +85,7 @@ export default function Post({ data }: PostPageProps) {
     let { data } = await supabase
       .from('posts')
       .select(POST_SELECT_QUERY)
-      .eq('id', id)
+      .eq('id', post.id)
       .single()
 
     if (data) setPost(data as PostType)

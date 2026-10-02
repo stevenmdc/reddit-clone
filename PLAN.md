@@ -1,0 +1,291 @@
+# PLAN.md
+
+## État vérifié au 2 octobre 2026
+
+- Variables Supabase renseignées et serveur dev démarré sur `localhost:3000` : déclarés par l'utilisateur. Aucune valeur secrète reproduite.
+- Audit initial terminé : voir [AUDIT.md](AUDIT.md).
+- TypeScript, lint et build passent. Tests : 15 réussites sur 15 ; locale anglaise fixée uniquement dans le test des dates.
+- Accueil, création, login et signup : HTTP 200. Post, profil et communauté inexistants : HTTP 404. Compte déconnecté : redirection HTTP 307.
+- Schéma original appliqué, contraintes et présence de RLS/policies vérifiées. L'utilisateur confirme auth, création/lecture/détail, votes persistants et commentaires persistants, logout et vote indépendant avec un second compte. Étape 2 validée sur cette base.
+- Aucune migration ni modification de l'application effectuée pendant l'audit.
+
+Ne pas supprimer les validations déjà prévues : cocher uniquement les résultats vérifiés. La connexion Supabase ne valide pas la création du schéma cible.
+
+## Protection des quotas Supabase Free — exigence avant ouverture publique
+
+- Le schéma original a été appliqué avec l'accord de l'utilisateur via le session pooler ; les tables, la RLS, les policies, le trigger et l'unicité des votes ont été vérifiés.
+- Protéger l'auth dès l'étape 5 : limites natives Supabase, CAPTCHA Turnstile ou hCaptcha validé par Supabase, gestion des réponses 429 sans retries automatiques agressifs.
+- Vérifier les quotas réellement configurés dans le dashboard. Le fournisseur email intégré est documenté à 2 emails/heure par projet ; ne pas confondre quota email et quota de connexion.
+- Décision d'architecture à valider : point d'entrée serveur/edge avec compteur partagé et atomique, limites par IP fiable, par utilisateur vérifié et plafond global. Éviter un compteur en mémoire par instance.
+- Les appels directs à Supabase doivent être couverts : un middleware Next.js ou une Edge Function facultative ne protège pas les endpoints contournables. Définir les permissions SQL pour empêcher le contournement des écritures contrôlées ; ne pas contourner RLS avec une clé privilégiée pour les actions utilisateur.
+- Une limite dans une Supabase Edge Function consomme déjà une invocation ; envisager un filtre en amont sur l'hébergement pour protéger aussi ce quota. Choix du fournisseur et de ses quotas à vérifier avant ajout d'une dépendance.
+- Réduire les lectures à l'étape 7 : pagination et plafond serveur, sélection des champs utiles, agrégation des scores, cache des classements publics sans données de session.
+- Étape 10 : tests des limites, accès directs, concurrence, 429/Retry-After, comportement si le compteur est indisponible, et suivi des quotas. Les protections réduisent les abus sans garantir une disponibilité permanente du plan Free.
+- Sources : [Auth rate limits](https://supabase.com/docs/guides/auth/rate-limits), [CAPTCHA](https://supabase.com/docs/guides/auth/auth-captcha), [Edge rate limiting](https://supabase.com/docs/guides/functions/examples/rate-limiting).
+
+- [x] **Étape 0 — Règles de travail des agents**
+  - Ne modifier qu’une étape à la fois.
+  - Ne pas anticiper les étapes suivantes.
+  - Avant chaque modification :
+    - lire le code existant concerné ;
+    - identifier les dépendances impactées ;
+    - proposer un plan court ;
+    - attendre validation si une décision d’architecture est nécessaire.
+  - Après chaque étape :
+    - lancer les checks disponibles ;
+    - résumer les fichiers modifiés ;
+    - signaler les risques / TODO ;
+    - attendre validation avant de continuer.
+  - Interdictions :
+    - ne pas réécrire tout le projet inutilement ;
+    - ne pas ajouter de librairie sans justification ;
+    - ne pas modifier la logique métier hors périmètre ;
+    - ne jamais exposer de secrets, clés Supabase ou variables `.env`.
+
+- [x] **Étape 1 — Audit du repository existant**
+  - Cloner / ouvrir le repo `neilgebhard/reddit-clone`.
+  - Cartographier :
+    - structure Next.js ;
+    - routing ;
+    - auth ;
+    - Supabase ;
+    - tables / requêtes ;
+    - système upvote/downvote ;
+    - commentaires ;
+    - composants UI ;
+    - variables d’environnement.
+  - Identifier :
+    - code réutilisable ;
+    - code obsolète ;
+    - dépendances dépréciées ;
+    - éventuels problèmes de sécurité ;
+    - logique spécifique à Reddit à supprimer plus tard.
+  - Produire un résumé d’audit sans modifier le code.
+  - **VALIDATION 1 : attendre accord avant toute migration.**
+
+- [x] **Étape 2 — Faire fonctionner le projet original en local**
+  - [x] Variables renseignées et serveur dev démarré (déclarés par l'utilisateur).
+  - [x] Vérifier TypeScript et lint : succès lors de l'audit.
+  - [x] Diagnostiquer l'erreur 500 : les cinq tables sont absentes du cache API Supabase (`PGRST205`).
+  - [x] Éviter le crash de l'accueil et afficher une erreur de chargement explicite.
+  - [x] Vérifier la présence du schéma original, des relations et des catégories nécessaires.
+  - [x] Préparer le SQL du schéma original pour revue : `supabase/bootstrap-original.sql` (appliqué après validation).
+  - [x] Valider puis appliquer le SQL du schéma original sur le projet prévu, et vérifier les requêtes.
+  - [x] Vérifier après initialisation : lectures Supabase HTTP 200 ; accueil, création et login HTTP 200 après redémarrage du dev server.
+  - [x] Documenter les tests sensibles à la locale et vérifier les parcours réels.
+  - [x] Build, TypeScript, lint et 15 tests passent après correction des types et des routes inexistantes.
+  - [x] Auth et parcours réels confirmés par l'utilisateur : posts, votes et commentaires persistants, restrictions déconnecté et second compte.
+  - [x] Configuration des images dérivée du bucket personnel ; fichiers `.env*` ignorés sauf `.env.example`, exemple documenté.
+  - [x] Compte : état d'erreur explicite si le profil manque, et erreurs de mise à jour affichées.
+  - Installer les dépendances sans migration majeure.
+  - Corriger uniquement les erreurs bloquant le lancement local.
+  - Créer un `.env.example` propre.
+  - Ne pas utiliser les credentials Supabase du projet d’origine.
+  - Vérifier :
+    - `npm install` ;
+    - `npm run dev` ;
+    - build ;
+    - lint si disponible.
+  - Documenter les erreurs héritées restantes.
+  - **VALIDATION 2 : confirmer que la base originale fonctionne avant modernisation.**
+
+- [ ] **Étape 3 — Créer notre propre backend Supabase**
+  - Distinguer la configuration de connexion déjà renseignée du schéma cible restant à créer et valider.
+  - Créer / connecter un nouveau projet Supabase.
+  - Définir les tables minimales :
+    - `profiles` ;
+    - `topics` ;
+    - `items` ;
+    - `votes`.
+  - Schéma cible pour `votes` :
+    - `user_id` ;
+    - `item_id` ;
+    - `value` avec valeurs `1` ou `-1` ;
+    - contrainte `UNIQUE(user_id, item_id)`.
+  - Ajouter les foreign keys nécessaires.
+  - Ajouter les index utiles.
+  - Ajouter RLS et policies.
+  - Aucun secret dans le repository.
+  - **VALIDATION 3 : valider le schéma SQL et les policies avant intégration frontend.**
+
+- [ ] **Étape 4 — Moderniser Next.js progressivement**
+  - Mettre à jour Next.js vers la version cible du projet.
+  - Mettre à jour React vers la version compatible.
+  - Migrer les APIs obsolètes une par une.
+  - Ne pas mélanger migration framework et redesign.
+  - Conserver le comportement fonctionnel existant pendant la migration.
+  - Vérifier après chaque sous-migration :
+    - dev server ;
+    - build ;
+    - TypeScript ;
+    - lint.
+  - **VALIDATION 4 : build propre avant de toucher à l’architecture UI.**
+
+- [ ] **Étape 5 — Moderniser Supabase Auth**
+  - Retirer les anciens `@supabase/auth-helpers-*` si présents.
+  - Passer à l’intégration Supabase recommandée pour Next.js actuel.
+  - Implémenter :
+    - session serveur ;
+    - session client si nécessaire ;
+    - logout ;
+    - protection des routes ;
+    - récupération de l’utilisateur courant.
+  - Prévoir :
+    - email / magic link ou email + mot de passe ;
+    - OAuth Google ;
+    - OAuth GitHub si utile.
+  - Vérifier redirections et cookies.
+  - **VALIDATION 5 : login/logout/session doivent fonctionner avant le système de vote.**
+
+- [ ] **Étape 6 — Isoler le système de vote**
+  - Extraire la logique de vote du clone Reddit.
+  - Adapter la logique au modèle `items`.
+  - Règles métier :
+    - utilisateur non connecté → aucun vote persistant ;
+    - clic `upvote` sans vote → `+1` ;
+    - clic `downvote` sans vote → `-1` ;
+    - clic sur le même vote → suppression du vote ;
+    - passage de `+1` à `-1` → update ;
+    - passage de `-1` à `+1` → update ;
+    - un utilisateur ne peut avoir qu’un vote par item.
+  - Calculer le score depuis les votes.
+  - Ne jamais faire confiance uniquement au state frontend.
+  - **VALIDATION 6 : tests fonctionnels du vote avant création du ranking.**
+
+- [ ] **Étape 7 — Créer le moteur de ranking**
+  - Ajouter tri :
+    - score ;
+    - récent ;
+    - éventuellement tendance plus tard.
+  - Première version :
+    - `score = SUM(votes.value)`.
+  - Éviter toute formule complexe tant que le besoin n’est pas validé.
+  - Vérifier cohérence en cas de votes concurrents.
+  - Vérifier pagination.
+  - **VALIDATION 7 : valider le classement simple avant algorithme avancé.**
+
+- [ ] **Étape 8 — Simplifier le clone Reddit vers notre produit**
+  - Supprimer progressivement :
+    - branding Reddit ;
+    - faux subreddits ;
+    - éléments UI inutiles ;
+    - fonctions non nécessaires ;
+    - commentaires si hors scope MVP.
+  - Conserver :
+    - auth ;
+    - listes ;
+    - cards ;
+    - vote ;
+    - score ;
+    - navigation utile.
+  - Renommer les concepts :
+    - `post` → `item` si pertinent ;
+    - `subreddit` → `topic` / `category`.
+  - **VALIDATION 8 : valider le périmètre MVP avant redesign complet.**
+
+- [ ] **Étape 9 — Refaire l’UI du ranking**
+  - Créer une UI indépendante de Reddit.
+  - Composants minimaux :
+    - `RankingList` ;
+    - `RankingItem` ;
+    - `VoteControls` ;
+    - `Score` ;
+    - `AuthButton` ;
+    - `TopicSelector`.
+  - États visuels :
+    - vote actif ;
+    - loading ;
+    - erreur ;
+    - utilisateur déconnecté ;
+    - score mis à jour.
+  - Responsive desktop + mobile.
+  - **VALIDATION 9 : valider UX/UI avant ajout de fonctionnalités secondaires.**
+
+- [ ] **Étape 10 — Sécurité et intégrité des votes**
+  - Vérifier RLS Supabase.
+  - Interdire :
+    - vote pour un autre utilisateur ;
+    - `value` différent de `1` ou `-1` ;
+    - doublon `(user_id, item_id)` ;
+    - modification directe non autorisée.
+  - Implémenter et vérifier le rate limiting demandé pour protéger les quotas Free (voir l'exigence en tête du plan).
+  - Vérifier que le score ne peut pas être falsifié côté client.
+  - Tester avec plusieurs comptes.
+  - **VALIDATION 10 : aucun déploiement public avant validation sécurité.**
+
+- [ ] **Étape 11 — Tests**
+  - Tests unitaires :
+    - logique vote ;
+    - transitions `0 → +1`, `+1 → 0`, `+1 → -1`, etc.
+  - Tests intégration :
+    - auth ;
+    - création / lecture d’items ;
+    - vote ;
+    - classement.
+  - Tests e2e prioritaires :
+    - signup/login ;
+    - voter une fois ;
+    - changer son vote ;
+    - retirer son vote ;
+    - score visible après refresh.
+  - **VALIDATION 11 : tous les parcours MVP critiques doivent passer.**
+
+- [ ] **Étape 12 — Nettoyage technique**
+  - Supprimer :
+    - dépendances inutilisées ;
+    - anciens composants ;
+    - variables mortes ;
+    - fichiers de démo ;
+    - credentials hérités ;
+    - code Reddit inutilisé.
+  - Vérifier :
+    - TypeScript strict si possible ;
+    - absence d’erreurs build ;
+    - absence de warnings critiques ;
+    - README à jour.
+  - **VALIDATION 12 : revue finale du diff avant déploiement.**
+
+- [ ] **Étape 13 — Déploiement propre**
+  - Déployer sur un nouveau projet Vercel.
+  - Utiliser un nouveau domaine / sous-domaine.
+  - Configurer les variables d’environnement dans Vercel.
+  - Configurer les URLs OAuth Supabase.
+  - Ne pas utiliser le domaine de démo original.
+  - Vérifier :
+    - HTTPS ;
+    - login ;
+    - callback OAuth ;
+    - vote ;
+    - ranking ;
+    - refresh ;
+    - mobile.
+  - **VALIDATION 13 : smoke test complet en production.**
+
+- [ ] **Étape 14 — Phase 2 uniquement après MVP validé**
+  - Ajouter seulement après validation :
+    - commentaires ;
+    - profils publics ;
+    - catégories multiples ;
+    - recherche ;
+    - images ;
+    - bookmarks ;
+    - classement par période ;
+    - tendance / hot ranking ;
+    - modération ;
+    - admin ;
+    - notifications.
+  - Ne pas implémenter ces fonctionnalités pendant le MVP sans demande explicite.
+
+- [ ] **Definition of Done MVP**
+  - Auth fonctionnelle.
+  - OAuth ou email fonctionnel.
+  - Un utilisateur = un vote maximum par item.
+  - Upvote / downvote / annulation fonctionnels.
+  - Score persistant.
+  - Ranking correctement trié.
+  - RLS active.
+  - Build propre.
+  - UI responsive.
+  - Déploiement Vercel fonctionnel.
+  - Aucun secret exposé.
+  - Aucun branding Reddit restant.

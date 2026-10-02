@@ -25,6 +25,7 @@ interface UserPageProps {
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const { username } = context.query
+  if (typeof username !== 'string') return { notFound: true }
   const { data: profile, error } = await supabase
     .from('profiles')
     .select(
@@ -34,6 +35,9 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
     )
     .eq('username', username)
     .single()
+
+  if (error?.code === 'PGRST116' || (!error && !profile)) return { notFound: true }
+  if (error) throw new Error('Unable to load profile')
 
   return {
     props: { profile },

@@ -24,6 +24,7 @@ interface SubredditPageProps {
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const { name } = context.query
+  if (typeof name !== 'string') return { notFound: true }
   const [posts, subreddits] = await Promise.all([
     supabase
       .from('subreddits')
@@ -31,6 +32,9 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
       .eq('name', name),
     supabase.from('subreddits').select('*'),
   ])
+
+  if (posts.error || subreddits.error) throw new Error('Unable to load community')
+  if (!posts.data?.length) return { notFound: true }
 
   return {
     props: { posts: posts.data, subreddits: subreddits.data },

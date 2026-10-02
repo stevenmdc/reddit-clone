@@ -7,7 +7,7 @@ import { User } from '@/types/models'
 import { useFormSubmit } from '@/hooks/useFormSubmit'
 
 interface AccountProps {
-  data: User
+  data: User | null
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -18,7 +18,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   } = await supabase.auth.getSession()
 
   if (session) {
-    let { data, error, status } = await supabase
+    const { data } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', session.user.id)
@@ -38,11 +38,20 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 }
 
 export default function Account({ data }: AccountProps) {
-  const [profile, setProfile] = useState(data)
   const [success, setSuccess] = useState(false)
   const session = useSession()
   const supabase = useSupabaseClient()
-  const { loading, executeSubmit } = useFormSubmit()
+  const { loading, error, executeSubmit } = useFormSubmit()
+
+  if (!data) {
+    return (
+      <main className='max-w-2xl mx-auto mt-10 px-3'>
+        <div role='alert' className='rounded border bg-white p-5 text-red-700'>
+          Impossible de charger votre profil. Réessayez ou vérifiez la configuration Supabase.
+        </div>
+      </main>
+    )
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -105,7 +114,7 @@ export default function Account({ data }: AccountProps) {
                 id='username'
                 className='block border w-full rounded px-2 py-1'
                 type='text'
-                defaultValue={profile.username ?? ''}
+                defaultValue={data.username ?? ''}
               />
             </div>
             <div className='text-right'>
@@ -117,6 +126,7 @@ export default function Account({ data }: AccountProps) {
               </button>
             </div>
           </form>
+          {error && <div role='alert' className='mt-3 text-red-700'>{error}</div>}
           <div
             className={`text-right mt-3 text-green-600 font-semibold ${
               success ? 'visible' : 'hidden'

@@ -1,8 +1,7 @@
+*** .env var examples
+
 NEXT_PUBLIC_SUPABASE_URL=https://your-supabase-url.supabase.co
-# Reserved for the future auth migration; current helpers require ANON_KEY.
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-# Public images bucket URL with a trailing slash. Storage setup is separate.
 NEXT_PUBLIC_SUPABASE_IMAGE_BUCKET_URL=https://your-supabase-url.supabase.co/storage/v1/object/public/images/
-# Local database administration only. Never use a NEXT_PUBLIC_ prefix here.
 DATABASE_PASSWORD=your-database-password

@@ -23,7 +23,13 @@ export const getServerSideProps: GetServerSideProps = async () => {
   ])
 
   return {
-    props: { posts: posts.data, subreddits: subreddits.data },
+    props: {
+      posts: posts.data ?? [],
+      subreddits: subreddits.data ?? [],
+      loadError: posts.error || subreddits.error
+        ? 'Impossible de charger les publications. Vérifiez la configuration du backend Supabase.'
+        : null,
+    },
   }
 }
 
@@ -42,9 +48,10 @@ const sortByUpvotes = (posts: PostWithUpvotes[]): PostWithUpvotes[] => {
 interface HomeProps {
   posts: PostType[]
   subreddits: Subreddit[]
+  loadError: string | null
 }
 
-export default function Home({ posts: initialPosts, subreddits }: HomeProps) {
+export default function Home({ posts: initialPosts, subreddits, loadError }: HomeProps) {
   const session = useSession()
   const [sort, setSort] = useState<'new' | 'top'>('new')
 
@@ -79,6 +86,11 @@ export default function Home({ posts: initialPosts, subreddits }: HomeProps) {
       </Head>
       <main className='px-3 mt-5'>
         <div className='max-w-2xl mx-auto'>
+          {loadError && (
+            <div role='alert' className='mb-3 rounded border border-red-200 bg-white p-4 text-red-700'>
+              {loadError}
+            </div>
+          )}
           {session && (
             <div className='flex items-center gap-2 mb-3 bg-white p-2 border rounded'>
               <Link

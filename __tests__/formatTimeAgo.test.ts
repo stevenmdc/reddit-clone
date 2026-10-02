@@ -1,4 +1,10 @@
-import { formatTimeAgo } from '../index'
+const NativeRelativeTimeFormat = Intl.RelativeTimeFormat
+const localeSpy = jest.spyOn(Intl, 'RelativeTimeFormat').mockImplementation(
+  (_locale, options) => new NativeRelativeTimeFormat('en', options)
+)
+// Load after fixing the test locale; production keeps the user's locale.
+const { formatTimeAgo } = require('../index') as typeof import('../index')
+localeSpy.mockRestore()
 
 describe('formatTimeAgo', () => {
   beforeAll(() => {
