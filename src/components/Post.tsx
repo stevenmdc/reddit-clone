@@ -18,7 +18,7 @@ export default function Post({
 }: PostProps) {
   const relativeTime = formatTimeAgo(created_at ?? new Date().toISOString())
   return (
-    <li className='flex bg-white rounded-md mb-1 border overflow-hidden'>
+    <li className='flex bg-white dark:bg-[#181C1F] rounded-md mb-1 border overflow-hidden'>
       <Upvotes id={id} votes={post_votes} />
       <div className='grow'>
         <div className='p-3 space-y-1 h-full'>
@@ -29,7 +29,7 @@ export default function Post({
             >
               r/{subreddit.name}
             </Link>
-            <div className='text-neutral-500 font-extralight'>
+            <div className='text-neutral-500 dark:text-[#9BAEB9] font-extralight'>
               Posted by{' '}
               <Link className='hover:underline' href={ROUTES.USER(user.username ?? '')}>
                 u/{user.username}
@@ -43,7 +43,7 @@ export default function Post({
             </h2>
           </Link>
           <Link
-            className='inline-flex items-center gap-1 text-neutral-500 font-semibold text-sm hover:underline'
+            className='inline-flex items-center gap-1 text-neutral-500 dark:text-[#9BAEB9] font-semibold text-sm hover:underline'
             href={ROUTES.POST(id)}
           >
             <FaRegComment size={15} /> {comments.length} comments

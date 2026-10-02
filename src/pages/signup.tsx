@@ -52,41 +52,41 @@ export default function Signup() {
         <meta name='description' content='Sign up page' />
       </Head>
       <main className='mt-10 px-3'>
-        <div className='max-w-md mx-auto bg-white p-4 sm:p-12 rounded-2xl border'>
+        <div className='max-w-md mx-auto bg-white dark:bg-[#181C1F] p-4 sm:p-12 rounded-2xl border'>
           <h2 className='text-xl font-semibold mb-5'>Sign Up</h2>
           <form onSubmit={handleSubmit}>
             <label
-              className='font-semibold uppercase text-sm text-neutral-600'
+              className='font-semibold uppercase text-sm text-neutral-600 dark:text-[#B8C5CD]'
               htmlFor='username'
             >
               Username
             </label>
             <input
-              className='block border rounded-full w-full border-neutral-300 text-xl px-5 py-1 mb-5'
+              className='block border rounded-full w-full border-neutral-300 dark:border-[#343A3E] text-xl px-5 py-1 mb-5'
               id='username'
               type='text'
               required
             />
             <label
-              className='font-semibold uppercase text-sm text-neutral-600'
+              className='font-semibold uppercase text-sm text-neutral-600 dark:text-[#B8C5CD]'
               htmlFor='email'
             >
               Email
             </label>
             <input
-              className='block border rounded-full w-full border-neutral-300 text-xl px-5 py-1 mb-5'
+              className='block border rounded-full w-full border-neutral-300 dark:border-[#343A3E] text-xl px-5 py-1 mb-5'
               id='email'
               type='email'
               required
             />
             <label
-              className='font-semibold uppercase text-sm text-neutral-600'
+              className='font-semibold uppercase text-sm text-neutral-600 dark:text-[#B8C5CD]'
               htmlFor='password'
             >
               Password
             </label>
             <input
-              className='block border rounded-full w-full border-neutral-300 text-xl px-5 py-1 mb-5'
+              className='block border rounded-full w-full border-neutral-300 dark:border-[#343A3E] text-xl px-5 py-1 mb-5'
               id='password'
               type='password'
               required
@@ -99,11 +99,11 @@ export default function Signup() {
             </button>
           </form>
           {error && (
-            <div className='text-red-700 font-semibold mt-4'>
+            <div className='text-red-700 dark:text-red-400 font-semibold mt-4'>
               Oops! {error}.
             </div>
           )}
-          <div className='mt-5 text-sm text-neutral-600'>
+          <div className='mt-5 text-sm text-neutral-600 dark:text-[#B8C5CD]'>
             Have an account?{' '}
             <Link
               className='text-blue-500 underline font-semibold'

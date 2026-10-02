@@ -6,6 +6,7 @@
 export const ROUTES = {
   // Static routes
   HOME: '/',
+  POPULAR: '/?sort=top',
   LOGIN: '/login',
   SIGNUP: '/signup',
   ACCOUNT: '/account',

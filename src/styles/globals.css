@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  .dark *,
+  .dark ::before,
+  .dark ::after {
+    border-color: #343a3e;
+  }
+
+  .dark input,
+  .dark textarea,
+  .dark select {
+    background-color: #0e1113;
+    color: #dbe4e9;
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: #82959f;
+  }
+}

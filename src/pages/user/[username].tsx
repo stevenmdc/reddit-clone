@@ -64,9 +64,9 @@ export default function User({ profile }: UserPageProps) {
       <main className='px-3 mt-10'>
         <div className='max-w-2xl mx-auto'>
           <div className='text-center'>
-            <span className='bg-white inline-block p-5 rounded border border-neutral-300'>
+            <span className='bg-white dark:bg-[#181C1F] inline-block p-5 rounded border border-neutral-300 dark:border-[#343A3E]'>
               <div className='text-2xl font-semibold'>{profile.username}</div>
-              <div className='text-neutral-500 text-sm'>
+              <div className='text-neutral-500 dark:text-[#9BAEB9] text-sm'>
                 <Link
                   className='hover:underline'
                   href={ROUTES.USER(profile.username ?? '')}
@@ -91,7 +91,7 @@ export default function User({ profile }: UserPageProps) {
 function PostList({ posts }: { posts: PostType[] }) {
   if (posts.length === 0) {
     return (
-      <div className='text-center border bg-white rounded p-4 text-neutral-700'>
+      <div className='text-center border bg-white dark:bg-[#181C1F] rounded p-4 text-neutral-700 dark:text-[#B8C5CD]'>
         This user has no posts yet.
       </div>
     )
@@ -109,7 +109,7 @@ function PostList({ posts }: { posts: PostType[] }) {
 function CommentList({ comments }: { comments: CommentWithPost[] }) {
   if (comments.length === 0) {
     return (
-      <div className='text-center border bg-white rounded p-4 text-neutral-700'>
+      <div className='text-center border bg-white dark:bg-[#181C1F] rounded p-4 text-neutral-700 dark:text-[#B8C5CD]'>
         This user has no comments yet.
       </div>
     )

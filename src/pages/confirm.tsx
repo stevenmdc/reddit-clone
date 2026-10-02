@@ -15,7 +15,7 @@ export default function Confirm() {
         />
       </Head>
       <main className='mt-10'>
-        <div className='max-w-xl mx-auto bg-white p-10 rounded-2xl text-center'>
+        <div className='max-w-xl mx-auto bg-white dark:bg-[#181C1F] p-10 rounded-2xl text-center'>
           <RiMailSendLine className='text-orange-700 text-6xl mb-5 inline-block' />
           <h1 className='text-xl font-semibold mb-5'>
             Verification link sent!

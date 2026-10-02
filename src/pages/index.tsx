@@ -4,9 +4,9 @@ import { useSession } from '@supabase/auth-helpers-react'
 import { supabase } from '@/lib/supabase/client'
 import { POST_SELECT_QUERY } from '@/lib/supabase/queries'
 import Post from '@/components/Post'
-import SubredditsSidebar from '@/components/SubredditsSidebar'
 import { ROUTES } from '@/constants/routes'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
+import { useRouter } from 'next/router'
 import { AiFillPlusCircle } from 'react-icons/ai'
 import { BiNews } from 'react-icons/bi'
 import { BsFire, BsImage, BsLink } from 'react-icons/bs'
@@ -51,9 +51,10 @@ interface HomeProps {
   loadError: string | null
 }
 
-export default function Home({ posts: initialPosts, subreddits, loadError }: HomeProps) {
+export default function Home({ posts: initialPosts, loadError }: HomeProps) {
   const session = useSession()
-  const [sort, setSort] = useState<'new' | 'top'>('new')
+  const router = useRouter()
+  const sort = router.query.sort === 'top' ? 'top' : 'new'
 
   const postsWithUpvotes: PostWithUpvotes[] = useMemo(
     () =>
@@ -75,7 +76,7 @@ export default function Home({ posts: initialPosts, subreddits, loadError }: Hom
   }, [sort, postsWithUpvotes])
 
   const handleSort = (sortBy: 'new' | 'top') => {
-    setSort(sortBy)
+    void router.push(sortBy === 'top' ? ROUTES.POPULAR : ROUTES.HOME, undefined, { shallow: true })
   }
 
   return (
@@ -87,44 +88,44 @@ export default function Home({ posts: initialPosts, subreddits, loadError }: Hom
       <main className='px-3 mt-5'>
         <div className='max-w-2xl mx-auto'>
           {loadError && (
-            <div role='alert' className='mb-3 rounded border border-red-200 bg-white p-4 text-red-700'>
+            <div role='alert' className='mb-3 rounded border border-red-200 bg-white dark:bg-[#181C1F] p-4 text-red-700 dark:text-red-400'>
               {loadError}
             </div>
           )}
           {session && (
-            <div className='flex items-center gap-2 mb-3 bg-white p-2 border rounded'>
+            <div className='flex items-center gap-2 mb-3 bg-white dark:bg-[#181C1F] p-2 border rounded'>
               <Link
                 className='grow flex items-center gap-2'
                 href={ROUTES.CREATE_POST}
               >
-                <AiFillPlusCircle className='text-4xl text-neutral-500' />{' '}
+                <AiFillPlusCircle className='text-4xl text-neutral-500 dark:text-[#9BAEB9]' />{' '}
                 <input
-                  className='border w-full rounded px-3 py-2 bg-neutral-50 hover:bg-white'
+                  className='border w-full rounded px-3 py-2 bg-neutral-50 dark:bg-[#0E1113] hover:bg-white dark:hover:bg-[#22282C]'
                   placeholder='Create Post'
                   type='text'
                 />
               </Link>
               <Link href={ROUTES.CREATE_POST_IMAGE}>
-                <BsImage className='text-2xl text-neutral-500 hover:bg-neutral-100 cursor-pointer h-10 w-10 p-2 rounded' />
+                <BsImage className='text-2xl text-neutral-500 dark:text-[#9BAEB9] hover:bg-neutral-100 dark:hover:bg-[#22282C] cursor-pointer h-10 w-10 p-2 rounded' />
               </Link>
               <Link href={ROUTES.CREATE_POST_LINK}>
-                <BsLink className='text-2xl text-neutral-500 hover:bg-neutral-100 cursor-pointer h-10 w-10 p-2 rounded' />
+                <BsLink className='text-2xl text-neutral-500 dark:text-[#9BAEB9] hover:bg-neutral-100 dark:hover:bg-[#22282C] cursor-pointer h-10 w-10 p-2 rounded' />
               </Link>
             </div>
           )}
-          <div className='mb-3 bg-white border rounded p-3'>
+          <div className='mb-3 bg-white dark:bg-[#181C1F] border rounded p-3'>
             <div className='flex gap-3'>
               <button
-                className={`flex items-center gap-2 border hover:bg-neutral-200 px-2 py-1 text-lg rounded ${
-                  sort === 'new' && 'bg-neutral-200'
+                className={`flex items-center gap-2 border hover:bg-neutral-200 dark:hover:bg-[#2A3236] px-2 py-1 text-lg rounded ${
+                  sort === 'new' && 'bg-neutral-200 dark:bg-[#2A3236]'
                 }`}
                 onClick={() => handleSort('new')}
               >
                 <BiNews /> New
               </button>
               <button
-                className={`flex items-center gap-2 border hover:bg-neutral-200 px-3 py-1 text-lg rounded ${
-                  sort === 'top' && 'bg-neutral-200'
+                className={`flex items-center gap-2 border hover:bg-neutral-200 dark:hover:bg-[#2A3236] px-3 py-1 text-lg rounded ${
+                  sort === 'top' && 'bg-neutral-200 dark:bg-[#2A3236]'
                 }`}
                 onClick={() => handleSort('top')}
               >
@@ -132,16 +133,11 @@ export default function Home({ posts: initialPosts, subreddits, loadError }: Hom
               </button>
             </div>
           </div>
-          <div className='flex sm:gap-2'>
-            <div className='max-w-2xl grow'>
-              <ul>
-                {sortedPosts.map((post) => {
-                  return <Post key={post.id} {...post} />
-                })}
-              </ul>
-            </div>
-            <SubredditsSidebar subreddits={subreddits} />
-          </div>
+          <ul>
+            {sortedPosts.map((post) => {
+              return <Post key={post.id} {...post} />
+            })}
+          </ul>
         </div>
       </main>
     </>

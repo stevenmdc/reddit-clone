@@ -1,17 +1,18 @@
 # PLAN.md
 
-## État vérifié au 2 octobre 2026
+## État vérifié au 3 octobre 2026
 
 - Variables Supabase renseignées et serveur dev démarré sur `localhost:3000` : déclarés par l'utilisateur. Aucune valeur secrète reproduite.
-- Audit initial terminé : voir [AUDIT.md](AUDIT.md).
+- Audit initial terminé ; `AUDIT.md` a été supprimé du workspace et n'est plus utilisé comme référence locale.
 - Next.js `^16.3.8`, React 18.3.1, TypeScript 5.9.3 ; code dans `src/`, assets statiques dans `public/images/`.
-- Build et 15 tests passent ; TypeScript passe après modernisation du tsconfig (ES2017, plugin Next, types générés). Lint sans erreur, avec deux avertissements hérités dans Upvotes.
+- Dernière validation de la fiabilisation des votes : build, 48 tests, TypeScript et lint passent ; aucun avertissement lint.
+- UI ajoutée : thèmes clair/sombre, sidebar animée, sélection de 8 avatars et affichage sur Account. Cadrage de l'avatar de navbar conservé à 150 %.
 - Dernier audit npm : zéro vulnérabilité signalée. Auth helpers encore présents ; CAPTCHA et rate limiting non activés.
 - Accueil, création, login et signup : HTTP 200. Post, profil et communauté inexistants : HTTP 404. Compte déconnecté : redirection HTTP 307.
 - Schéma original appliqué, contraintes et présence de RLS/policies vérifiées. L'utilisateur confirme auth, création/lecture/détail, votes persistants et commentaires persistants, logout et vote indépendant avec un second compte. Étape 2 validée sur cette base.
 - Point de retour publié : `fc8ef58` sur `stevenmdc/reddit-clone`. Modernisation et rangement revus pour commit et push distincts à la demande de l'utilisateur.
 
-Prochaine priorité : étape 5 (Auth + App Router), puis étape 3 (schéma cible) et étapes 6–9 (vote, ranking paginé et UI). Valider sécurité, protection des quotas et tests avant le déploiement. Détails historiques dans [AUDIT.md](AUDIT.md).
+Ordre actif choisi par l'utilisateur : fiabiliser les votes sur le schéma original, puis pagination + classement serveur, puis moderniser l'auth. Le branding Reddit et les tables actuelles sont conservés. Le produit de ranking indépendant et le schéma `topics/items/votes` sont reportés ; ils ne bloquent pas les améliorations du clone. La migration App Router reste une décision à revoir lors du chantier auth. Valider sécurité, protection des quotas et tests avant le déploiement.
 
 Ne pas supprimer les validations déjà prévues : cocher uniquement les résultats vérifiés. La connexion Supabase ne valide pas la création du schéma cible.
 
@@ -94,6 +95,7 @@ Ne pas supprimer les validations déjà prévues : cocher uniquement les résult
   - **VALIDATION 2 : confirmer que la base originale fonctionne avant modernisation.**
 
 - [ ] **Étape 3 — Créer notre propre backend Supabase**
+  - Reportée : conserver le schéma original pour le clone Reddit actuel. Ne pas renommer les tables pendant les chantiers vote, pagination ou auth.
   - Différée après la modernisation framework/auth à la demande de l'utilisateur : conserver le schéma original fonctionnel pendant ces migrations.
   - Distinguer la configuration de connexion déjà renseignée du schéma cible restant à créer et valider.
   - Créer / connecter un nouveau projet Supabase.
@@ -150,6 +152,15 @@ Ne pas supprimer les validations déjà prévues : cocher uniquement les résult
   - **VALIDATION 5 : login/logout/session doivent fonctionner avant le système de vote.**
 
 - [ ] **Étape 6 — Isoler le système de vote**
+  - Sous-étape actuelle sur `posts/post_votes` (sans migration vers `items`) :
+    - [x] Logique isolée dans `usePostVote` et `lib/votes`, sans mutation des props.
+    - [x] Upsert ciblé sur `(user_id, post_id)` ; annulation ciblée sur la publication et l'utilisateur.
+    - [x] Verrou immédiat et boutons désactivés pendant la requête ; score optimiste restauré si l'écriture échoue.
+    - [x] Relecture serveur par comptes exacts et récupération du vote personnel ; relecture seule proposée si le vote est enregistré mais le score indisponible.
+    - [x] Redirection login pour les deux boutons déconnectés ; état réinitialisé lors d'un changement de compte/publication.
+    - [x] Tests des six transitions, séquence ajout/annulation/ajout, erreurs, clics rapides, props actualisées et réponses tardives.
+    - [ ] Vérifier en navigateur les votes persistants après refresh et les parcours avec deux comptes sur le backend réel.
+    - [ ] Validation de cette sous-étape avant le chantier pagination/classement serveur.
   - Extraire la logique de vote du clone Reddit.
   - Adapter la logique au modèle `items`.
   - Règles métier :
@@ -177,6 +188,7 @@ Ne pas supprimer les validations déjà prévues : cocher uniquement les résult
   - **VALIDATION 7 : valider le classement simple avant algorithme avancé.**
 
 - [ ] **Étape 8 — Simplifier le clone Reddit vers notre produit**
+  - Reportée à la demande de l'utilisateur : conserver le branding Reddit et les concepts post/subreddit pour l'instant.
   - Supprimer progressivement :
     - branding Reddit ;
     - faux subreddits ;

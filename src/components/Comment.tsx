@@ -33,8 +33,8 @@ export default function Comment({ id, updated_at, user, text, post }: CommentPro
   // Render with post context (for user profile page)
   if (post) {
     return (
-      <li className='space-y-1 bg-white p-5 rounded border border-neutral-300'>
-        <div className='text-neutral-400 text-sm mb-2'>
+      <li className='space-y-1 bg-white dark:bg-[#181C1F] p-5 rounded border border-neutral-300 dark:border-[#343A3E]'>
+        <div className='text-neutral-400 dark:text-[#9BAEB9] text-sm mb-2'>
           <FaRegComment className='text-lg inline mr-1' />{' '}
           <Link
             className='text-blue-400 hover:underline'
@@ -45,13 +45,13 @@ export default function Comment({ id, updated_at, user, text, post }: CommentPro
           commented on{' '}
           <Link
             href={ROUTES.POST(post.id)}
-            className='text-neutral-800 hover:underline'
+            className='text-neutral-800 dark:text-[#DBE4E9] hover:underline'
           >
             {post.title}
           </Link>{' '}
           •{' '}
           <Link
-            className='hover:underline text-neutral-700 font-semibold'
+            className='hover:underline text-neutral-700 dark:text-[#B8C5CD] font-semibold'
             href={ROUTES.SUBREDDIT(post.subreddit.name)}
           >
             r/{post.subreddit.name}
@@ -60,7 +60,7 @@ export default function Comment({ id, updated_at, user, text, post }: CommentPro
         <div className='border my-4' />
         <div className='text-sm mt-2'>
           <span>{user.username}</span>
-          <span className='text-neutral-400'> • {formatTimeAgo(updated_at ?? new Date().toISOString())}</span>
+          <span className='text-neutral-400 dark:text-[#9BAEB9]'> • {formatTimeAgo(updated_at ?? new Date().toISOString())}</span>
         </div>
         <div>{text}</div>
         <div className='flex justify-between'>
@@ -82,13 +82,13 @@ export default function Comment({ id, updated_at, user, text, post }: CommentPro
     <li className='space-y-1 py-3 rounded'>
       <div className='text-sm'>
         <span className='font-semibold'>{user.username}</span>{' '}
-        <span className='text-neutral-500'>{formatTimeAgo(updated_at ?? new Date().toISOString())}</span>
+        <span className='text-neutral-500 dark:text-[#9BAEB9]'>{formatTimeAgo(updated_at ?? new Date().toISOString())}</span>
       </div>
       <div>{text}</div>
       <div className='flex justify-between'>
         {session?.user.id === user.id && (
           <button
-            className='text-red-700 font-semibold text-sm hover:underline'
+            className='text-red-700 dark:text-red-400 font-semibold text-sm hover:underline'
             onClick={handleDelete}
           >
             Delete

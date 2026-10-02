@@ -104,10 +104,10 @@ export default function CreatePost({ subreddits }: SubredditsProps) {
               setSelected={setSelected}
             />
           </div>
-          <div className='bg-white rounded border'>
-            <div className='flex divide-x text-neutral-500 font-semibold'>
+          <div className='bg-white dark:bg-[#181C1F] rounded border'>
+            <div className='flex divide-x dark:divide-[#343A3E] text-neutral-500 dark:text-[#9BAEB9] font-semibold'>
               <button
-                className={`grow border-b py-4 hover:bg-neutral-50 cursor-pointer flex items-center justify-center gap-2 ${
+                className={`grow border-b py-4 hover:bg-neutral-50 dark:hover:bg-[#22282C] cursor-pointer flex items-center justify-center gap-2 ${
                   type === 'post' &&
                   'border-b-2 border-b-blue-600 text-blue-600'
                 }`}
@@ -117,7 +117,7 @@ export default function CreatePost({ subreddits }: SubredditsProps) {
                 <TbArticle className='text-2xl' /> Post
               </button>
               <button
-                className={`grow border-b py-4 hover:bg-neutral-50 cursor-pointer flex items-center justify-center gap-2 ${
+                className={`grow border-b py-4 hover:bg-neutral-50 dark:hover:bg-[#22282C] cursor-pointer flex items-center justify-center gap-2 ${
                   type === 'image' &&
                   'border-b-2 border-b-blue-600 text-blue-600'
                 }`}
@@ -127,7 +127,7 @@ export default function CreatePost({ subreddits }: SubredditsProps) {
                 <BsImage className='text-xl' /> Image
               </button>
               <button
-                className={`grow border-b py-4 hover:bg-neutral-50 cursor-pointer flex items-center justify-center gap-2 ${
+                className={`grow border-b py-4 hover:bg-neutral-50 dark:hover:bg-[#22282C] cursor-pointer flex items-center justify-center gap-2 ${
                   type === 'link' &&
                   'border-b-2 border-b-blue-600 text-blue-600'
                 }`}
@@ -200,7 +200,7 @@ export default function CreatePost({ subreddits }: SubredditsProps) {
                 </button>
               </div>
               {error && (
-                <div className='text-red-700 font-semibold mt-4 text-right'>
+                <div className='text-red-700 dark:text-red-400 font-semibold mt-4 text-right'>
                   Oops! {error}.
                 </div>
               )}
@@ -226,7 +226,7 @@ function ListBox({ subreddits, selected, setSelected }: ListBoxProps) {
           <Listbox.Label className='uppercase text-sm font-semibold block mb-1'>
             Choose a community
           </Listbox.Label>
-          <Listbox.Button className='relative w-full max-w-xs cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm'>
+          <Listbox.Button className='relative w-full max-w-xs cursor-default rounded-lg bg-white dark:bg-[#181C1F] py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm'>
             <span className='block truncate'>{selected.name}</span>
             <span className='pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2'>
               <BsChevronDown
@@ -241,13 +241,13 @@ function ListBox({ subreddits, selected, setSelected }: ListBoxProps) {
             leaveFrom='opacity-100'
             leaveTo='opacity-0'
           >
-            <Listbox.Options className='absolute mt-1 max-h-60 w-full max-w-xs overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm'>
+            <Listbox.Options className='absolute mt-1 max-h-60 w-full max-w-xs overflow-auto rounded-md bg-white dark:bg-[#181C1F] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm'>
               {subreddits.map((subreddit) => (
                 <Listbox.Option
                   key={subreddit.id}
                   className={({ active }) =>
                     `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                      active ? 'bg-orange-100 text-orange-900' : 'text-gray-900'
+                      active ? 'bg-orange-100 dark:bg-orange-950 text-orange-900 dark:text-orange-200' : 'text-gray-900 dark:text-[#DBE4E9]'
                     }`
                   }
                   value={subreddit}

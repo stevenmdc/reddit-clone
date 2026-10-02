@@ -1,10 +1,14 @@
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs'
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 import Head from 'next/head'
+import Image from 'next/image'
 import { GetServerSideProps } from 'next'
 import { useState } from 'react'
 import { User } from '@/types/models'
 import { useFormSubmit } from '@/hooks/useFormSubmit'
+import { avatarSource } from '@/constants/avatars'
+import { useAvatar } from '@/components/AvatarProvider'
+import AvatarPicker from '@/components/AvatarPicker'
 
 interface AccountProps {
   data: User | null
@@ -39,6 +43,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 export default function Account({ data }: AccountProps) {
   const [success, setSuccess] = useState(false)
+  const [avatarPickerOpen, setAvatarPickerOpen] = useState(false)
+  const { avatar } = useAvatar()
   const session = useSession()
   const supabase = useSupabaseClient()
   const { loading, error, executeSubmit } = useFormSubmit()
@@ -46,7 +52,7 @@ export default function Account({ data }: AccountProps) {
   if (!data) {
     return (
       <main className='max-w-2xl mx-auto mt-10 px-3'>
-        <div role='alert' className='rounded border bg-white p-5 text-red-700'>
+        <div role='alert' className='rounded border bg-white dark:bg-[#181C1F] p-5 text-red-700 dark:text-red-400'>
           Impossible de charger votre profil. Réessayez ou vérifiez la configuration Supabase.
         </div>
       </main>
@@ -86,7 +92,27 @@ export default function Account({ data }: AccountProps) {
       </Head>
       <main className='max-w-2xl mx-auto mt-10 px-3'>
         <h1 className='text-xl mb-3'>Account</h1>
-        <div className='bg-white rounded p-5 border'>
+        <div className='bg-white dark:bg-[#181C1F] rounded p-5 border'>
+          <div className='mb-5 flex flex-wrap items-center gap-5 border-b pb-5'>
+            <Image
+              src={avatarSource(avatar)}
+              alt='Votre avatar'
+              width={128}
+              height={128}
+              unoptimized
+              className='h-32 w-32 rounded-2xl object-contain'
+            />
+            <div>
+              <h2 className='mb-2 font-semibold'>Votre avatar</h2>
+              <button
+                type='button'
+                onClick={() => setAvatarPickerOpen(true)}
+                className='rounded-full border px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-[#2A3236] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500'
+              >
+                Choisir un avatar
+              </button>
+            </div>
+          </div>
           <form onSubmit={handleSubmit}>
             <div className='mb-5'>
               <label
@@ -126,9 +152,9 @@ export default function Account({ data }: AccountProps) {
               </button>
             </div>
           </form>
-          {error && <div role='alert' className='mt-3 text-red-700'>{error}</div>}
+          {error && <div role='alert' className='mt-3 text-red-700 dark:text-red-400'>{error}</div>}
           <div
-            className={`text-right mt-3 text-green-600 font-semibold ${
+            className={`text-right mt-3 text-green-600 dark:text-green-400 font-semibold ${
               success ? 'visible' : 'hidden'
             }`}
           >
@@ -136,6 +162,7 @@ export default function Account({ data }: AccountProps) {
           </div>
         </div>
       </main>
+      {avatarPickerOpen && <AvatarPicker onClose={() => setAvatarPickerOpen(false)} />}
     </>
   )
 }

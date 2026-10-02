@@ -112,7 +112,7 @@ export default function Post({ data }: PostPageProps) {
       </Head>
       <main className='px-3'>
         <div className='max-w-2xl mx-auto mt-5'>
-          <article className='flex bg-white rounded-md mb-1 border border-neutral-300 overflow-hidden'>
+          <article className='flex bg-white dark:bg-[#181C1F] rounded-md mb-1 border border-neutral-300 dark:border-[#343A3E] overflow-hidden'>
             <Upvotes id={postId} votes={post_votes} />
             <div className='p-3 grow'>
               <div className='flex text-sm gap-2'>
@@ -122,7 +122,7 @@ export default function Post({ data }: PostPageProps) {
                 >
                   r/{subreddit.name}
                 </Link>
-                <div className='text-neutral-500 font-extralight'>
+                <div className='text-neutral-500 dark:text-[#9BAEB9] font-extralight'>
                   Posted by{' '}
                   <Link
                     className='hover:underline'
@@ -158,7 +158,7 @@ export default function Post({ data }: PostPageProps) {
                 <div className='flex justify-between'>
                   {session?.user.id === user.id && (
                     <button
-                      className='text-red-800 hover:border-neutral-600 font-semibold hover:underline'
+                      className='text-red-800 dark:text-red-400 hover:border-neutral-600 font-semibold hover:underline'
                       onClick={handleDelete}
                     >
                       Delete
