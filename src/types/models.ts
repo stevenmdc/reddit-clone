@@ -3,7 +3,7 @@
  * All types are derived from the database schema
  */
 
-import { Database } from '@/schema'
+import { Database } from '@/types/database'
 
 // Base types from database schema
 export type User = Database['public']['Tables']['profiles']['Row']

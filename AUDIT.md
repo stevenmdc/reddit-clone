@@ -83,3 +83,39 @@ Validation utilisateur avant baseline : auth, création/lecture/détail des post
 - `.gitignore` couvre `.env*` et conserve `.env.example` ; commentaires ajoutés à l'exemple pour distinguer la clé utilisée par l'auth actuelle, la future clé et le mot de passe d'administration.
 - `/account` affiche un état d'erreur si le profil ne peut pas être chargé, et rend visibles les erreurs de mise à jour. Aucun changement d'architecture auth ni création de compte.
 - TypeScript, lint et les 15 tests passent après ces changements. Les parcours d'auth réels et les protections de quotas restent ouverts.
+
+## Point de retour et première sous-migration framework
+
+- Commit baseline `fc8ef58` créé avec le message demandé, puis publié sur `https://github.com/stevenmdc/reddit-clone.git` ; aucune valeur secrète configurée trouvée dans les fichiers destinés au commit. `origin` pointe sur ce dépôt.
+- Après baseline : Next 15.5.27, React/React DOM 18.3.1, TypeScript 5.9.3, ESLint 8.57.1 et config Next correspondante. Pages Router, UI, schéma et auth helpers conservés.
+- Script lint passé à ESLint CLI. Répertoire `.next` exclu de la découverte Jest pour éviter une collision avec le package standalone. Cache CLI Supabase retiré du suivi et ignoré.
+- Build, TypeScript, lint et 15 tests réussis. Serveur dev relancé sur le port 3000.
+- `npm audit fix` sans force a corrigé les alertes compatibles ; 3 alertes restantes concernent PostCSS/Next et uuid. Audit non vierge ; Next 16, React 19, ESLint 9 et migration Supabase Auth restent des travaux distincts. Docker Node 18 hérité reste à moderniser.
+- Sources : [compatibilité Pages Router/React 18](https://nextjs.org/blog/next-15), [support Next.js](https://nextjs.org/support-policy).
+
+## Réorganisation des sources et conventions
+
+- Code déplacé dans `src/` : pages, composants, constantes, hooks, styles, lib et types. Alias TypeScript/Jest `@/` remappé ; chemins Tailwind et lint ajustés.
+- `index.ts` remplacé par `src/lib/format-time-ago.ts`, `schema.ts` par `src/types/database.ts`, clients/requêtes regroupés dans `src/lib/supabase/`. Imports et mocks mis à jour, logique conservée.
+- Capture déplacée dans `public/images/screenshot.png`, référence README corrigée. Images utilisateur toujours dans Storage.
+- `npm run update-types` utilise un script dédié, sans ancien identifiant de projet ni chemin absolu ; fichier existant préservé en cas d'échec. Script vérifié syntaxiquement mais génération non exécutée.
+- Build, TypeScript, lint et 15 tests réussis après déplacement. Serveur dev relancé. Aucun changement SQL ni architecture auth pendant le rangement.
+- Décision déléguée par l'utilisateur : garder `src/pages/` pour cette étape, préparer le passage à `src/app/` conjointement avec la modernisation auth et des chargements serveur.
+
+## Next.js 16 et nettoyage des caches
+
+Configuration TypeScript : cible héritée ES5 remplacée par ES2017, plugin Next et types générés dev/build inclus explicitement. Le compilateur local 5.9.3 ne reproduisait pas le diagnostic éditeur ; ES5 est déprécié dans TypeScript 6. Vérification `tsc --noEmit --incremental false` réussie après correction.
+
+- Next `^16.3.8` et config ESLint associée installés ; ESLint 9 avec flat config. Build Turbopack réussi. React 18.3.1 conservé, compatible avec les peers déclarés de Next et le Pages Router.
+- Next a ajusté TypeScript : résolution `bundler`, JSX `react-jsx`. Les 15 tests passent.
+- uuid et ses types supprimés : upload avec `crypto.randomUUID()` généré par fichier. Audit npm complet et production : zéro vulnérabilité signalée à ce contrôle.
+- La nouvelle règle React détecte deux synchronisations d'état héritées dans Upvotes. Niveau warning limité à ce fichier pour préserver le comportement validé pendant la migration ; refactor prévu avec le vote. Aucune désactivation globale.
+- `.swc` ne contenait que des sous-dossiers vides : supprimé et ignoré. `images` racine vide supprimé après vérification ; capture toujours dans `public/images/`.
+- Docker utilise Node 24 ; build Docker non exécuté. Auth helpers et App Router restent à migrer, protections de quotas non actives.
+- Référence : [guide de migration Next 16](https://nextjs.org/docs/app/guides/upgrading/version-16).
+
+## Publication de la modernisation
+
+- À la demande de l'utilisateur : cache `.swc` vide supprimé, Dockerfile déplacé dans `docker/`, commande README et argument d'URL du bucket ajustés. Contexte Docker conservé à la racine, `.env*` et caches exclus du contexte.
+- Avant commit/push : TypeScript et 15 tests passent, audit npm à zéro vulnérabilité, diff sans erreur d'espacement, aucune valeur secrète configurée détectée dans les fichiers destinés au commit.
+- Docker non exécuté ; deux avertissements lint hérités dans Upvotes restent documentés. Point de retour baseline conservé dans l'historique.

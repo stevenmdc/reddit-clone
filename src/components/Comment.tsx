@@ -1,7 +1,7 @@
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 import Link from 'next/link'
 import { FaRegComment } from 'react-icons/fa'
-import { formatTimeAgo } from '@/index'
+import { formatTimeAgo } from '@/lib/format-time-ago'
 import { ROUTES } from '@/constants/routes'
 import { Comment as CommentType, Post, User } from '@/types/models'
 

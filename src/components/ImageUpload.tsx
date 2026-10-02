@@ -1,10 +1,7 @@
 import { useState } from 'react'
 import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import Image from 'next/image'
-import { v4 as uuid } from 'uuid'
 import { BeatLoader } from 'react-spinners'
-
-const imageUuid = uuid()
 
 interface ImageUploadProps {
   onUpload: (fileName: string) => void
@@ -25,7 +22,7 @@ export default function ImageUpload({ onUpload }: ImageUploadProps) {
       }
       const file = event.target.files[0]
       const fileExt = file.name.split('.').pop()
-      const fileName = `${imageUuid}.${fileExt}`
+      const fileName = `${crypto.randomUUID()}.${fileExt}`
       let { data, error } = await supabase.storage
         .from('images')
         .upload(fileName, file, { upsert: true })

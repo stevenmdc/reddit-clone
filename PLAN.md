@@ -4,10 +4,14 @@
 
 - Variables Supabase renseignées et serveur dev démarré sur `localhost:3000` : déclarés par l'utilisateur. Aucune valeur secrète reproduite.
 - Audit initial terminé : voir [AUDIT.md](AUDIT.md).
-- TypeScript, lint et build passent. Tests : 15 réussites sur 15 ; locale anglaise fixée uniquement dans le test des dates.
+- Next.js `^16.3.8`, React 18.3.1, TypeScript 5.9.3 ; code dans `src/`, assets statiques dans `public/images/`.
+- Build et 15 tests passent ; TypeScript passe après modernisation du tsconfig (ES2017, plugin Next, types générés). Lint sans erreur, avec deux avertissements hérités dans Upvotes.
+- Dernier audit npm : zéro vulnérabilité signalée. Auth helpers encore présents ; CAPTCHA et rate limiting non activés.
 - Accueil, création, login et signup : HTTP 200. Post, profil et communauté inexistants : HTTP 404. Compte déconnecté : redirection HTTP 307.
 - Schéma original appliqué, contraintes et présence de RLS/policies vérifiées. L'utilisateur confirme auth, création/lecture/détail, votes persistants et commentaires persistants, logout et vote indépendant avec un second compte. Étape 2 validée sur cette base.
-- Aucune migration ni modification de l'application effectuée pendant l'audit.
+- Point de retour publié : `fc8ef58` sur `stevenmdc/reddit-clone`. Modernisation et rangement revus pour commit et push distincts à la demande de l'utilisateur.
+
+Prochaine priorité : étape 5 (Auth + App Router), puis étape 3 (schéma cible) et étapes 6–9 (vote, ranking paginé et UI). Valider sécurité, protection des quotas et tests avant le déploiement. Détails historiques dans [AUDIT.md](AUDIT.md).
 
 Ne pas supprimer les validations déjà prévues : cocher uniquement les résultats vérifiés. La connexion Supabase ne valide pas la création du schéma cible.
 
@@ -90,6 +94,7 @@ Ne pas supprimer les validations déjà prévues : cocher uniquement les résult
   - **VALIDATION 2 : confirmer que la base originale fonctionne avant modernisation.**
 
 - [ ] **Étape 3 — Créer notre propre backend Supabase**
+  - Différée après la modernisation framework/auth à la demande de l'utilisateur : conserver le schéma original fonctionnel pendant ces migrations.
   - Distinguer la configuration de connexion déjà renseignée du schéma cible restant à créer et valider.
   - Créer / connecter un nouveau projet Supabase.
   - Définir les tables minimales :
@@ -108,7 +113,13 @@ Ne pas supprimer les validations déjà prévues : cocher uniquement les résult
   - Aucun secret dans le repository.
   - **VALIDATION 3 : valider le schéma SQL et les policies avant intégration frontend.**
 
-- [ ] **Étape 4 — Moderniser Next.js progressivement**
+- [x] **Étape 4 — Moderniser Next.js progressivement**
+  - Point de retour : commit `fc8ef58`, publié sur `stevenmdc/reddit-clone` avant migration.
+  - Réorganisation effectuée : code dans `src/`, alias `@/`, assets dans `public/images/`, Supabase dans `lib/supabase/`. Conventions documentées dans README.
+  - [x] Sous-migration Next `^16.3.8`, ESLint 9 / flat config et Turbopack : build et 15 tests passent. React 18.3.1 compatible conservé avec le Pages Router.
+  - Audit npm : zéro vulnérabilité après retrait de uuid (remplacé par crypto.randomUUID). Deux avertissements de la nouvelle règle `react-hooks/set-state-in-effect` restent visibles uniquement dans Upvotes ; refactor prévu à l'étape vote.
+  - `.swc` nettoyé et ignoré, dossier `images` racine vide supprimé, image conservée dans `public/images`. Docker passé à Node 24 (build Docker non testé).
+  - tsconfig modernisé : ES2017, résolution bundler, plugin Next et types générés, détection explicite des modules ; TypeScript vérifié.
   - Mettre à jour Next.js vers la version cible du projet.
   - Mettre à jour React vers la version compatible.
   - Migrer les APIs obsolètes une par une.
@@ -122,8 +133,10 @@ Ne pas supprimer les validations déjà prévues : cocher uniquement les résult
   - **VALIDATION 4 : build propre avant de toucher à l’architecture UI.**
 
 - [ ] **Étape 5 — Moderniser Supabase Auth**
+  - Migrer conjointement les routes vers `src/app/` et les chargements serveur, en conservant URLs, UI et parcours validés.
   - Retirer les anciens `@supabase/auth-helpers-*` si présents.
-  - Passer à l’intégration Supabase recommandée pour Next.js actuel.
+  - Utiliser `@supabase/ssr` pour les clients navigateur/serveur et les cookies de session.
+  - Intégrer CAPTCHA et gestion des limites Auth (voir protection des quotas en tête du plan).
   - Implémenter :
     - session serveur ;
     - session client si nécessaire ;
@@ -133,7 +146,6 @@ Ne pas supprimer les validations déjà prévues : cocher uniquement les résult
   - Prévoir :
     - email / magic link ou email + mot de passe ;
     - OAuth Google ;
-    - OAuth GitHub si utile.
   - Vérifier redirections et cookies.
   - **VALIDATION 5 : login/logout/session doivent fonctionner avant le système de vote.**
 
@@ -231,6 +243,7 @@ Ne pas supprimer les validations déjà prévues : cocher uniquement les résult
   - **VALIDATION 11 : tous les parcours MVP critiques doivent passer.**
 
 - [ ] **Étape 12 — Nettoyage technique**
+  - Revoir puis committer séparément les migrations locales ; préserver le commit baseline publié. Commit et push demandés après nettoyage `.swc` et déplacement Dockerfile dans `docker/`.
   - Supprimer :
     - dépendances inutilisées ;
     - anciens composants ;

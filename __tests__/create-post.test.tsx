@@ -2,10 +2,10 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useRouter } from 'next/router'
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
-import CreatePost from '../pages/create-post'
+import CreatePost from '@/pages/create-post'
 import { Subreddit } from '@/types/models'
 
-jest.mock('@/lib/supabaseClient', () => ({
+jest.mock('@/lib/supabase/client', () => ({
   supabase: { from: jest.fn() },
 }))
 

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { FaRegComment } from 'react-icons/fa'
-import { formatTimeAgo } from '..'
+import { formatTimeAgo } from '@/lib/format-time-ago'
 import Upvotes from './Upvotes'
 import { BiLinkExternal } from 'react-icons/bi'
 import { PostProps } from '@/types/models'

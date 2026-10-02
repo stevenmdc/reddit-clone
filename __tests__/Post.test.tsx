@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react'
-import Post from '../components/Post'
-import { User, Subreddit, Comment, PostVote, PostProps } from '../types/models'
+import Post from '@/components/Post'
+import { User, Subreddit, Comment, PostVote, PostProps } from '@/types/models'
 
 // Mock the Upvotes component
-jest.mock('../components/Upvotes', () => {
+jest.mock('@/components/Upvotes', () => {
   return function MockUpvotes({
     id,
     votes,
@@ -16,7 +16,7 @@ jest.mock('../components/Upvotes', () => {
 })
 
 // Mock the formatTimeAgo function
-jest.mock('../index', () => ({
+jest.mock('@/lib/format-time-ago', () => ({
   formatTimeAgo: jest.fn(() => '2 hours ago'),
 }))
 
